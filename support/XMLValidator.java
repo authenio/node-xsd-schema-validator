@@ -71,11 +71,6 @@ public class XMLValidator implements ErrorHandler {
 
 private static Schema loadSchema(String fileName) throws Exception {
     SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-    // Disable DTD processing
-    sf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-    sf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-    sf.setFeature("http://xml.org/sax/features/external-general-entities", false);
-    sf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
     Schema schema = sf.newSchema(new File(fileName));
     return schema;
 }
@@ -118,6 +113,11 @@ private static Schema loadSchema(String fileName) throws Exception {
       Validator validator = schema.newValidator();
 
       validator.setErrorHandler(handler);
+
+      // avoid xxe
+      validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+      validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+
       validator.validate(new StreamSource(inputStream));
 
       logResult(handler.withErrors ? "WITH_ERRORS" : "OK");
