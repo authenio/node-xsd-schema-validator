@@ -286,6 +286,23 @@ describe('validator', function() {
   });
 
 
+  describe('should survive a large input rejected early', function() {
+
+    this.timeout(30000);
+
+    it('reports an error instead of crashing on EPIPE', function(done) {
+
+      // Not XML at all: the validator fails on the first byte and exits while
+      // most of the input is still unwritten.
+      validator.validateXML('A'.repeat(1024 * 1024), BPMN_SCHEMA, function(err) {
+        expect(err).to.exist;
+        done();
+      });
+    });
+
+  });
+
+
   describe('should not validate unsupported type for xml', function() {
 
     it('valid', function(done) {
